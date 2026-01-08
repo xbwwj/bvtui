@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/bvtui_crossterm"]
+members = ["crates/bvtui","crates/bvtui_crossterm"]
 
 [workspace.dependencies]
 bevy = { version = "0.17.3", default-features = false }

@@ -1,0 +1,8 @@
+[package]
+name = "bvtui"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy.workspace = true
+bvtui_crossterm = { path = "../bvtui_crossterm/", version = "0.1.0" }
