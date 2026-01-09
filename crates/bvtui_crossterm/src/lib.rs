@@ -1,6 +1,6 @@
 use std::{fmt::Debug, time::Duration};
 
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemState, prelude::*};
 use crossterm::event::{poll, read};
 
 #[derive(Default, Debug)]
@@ -21,8 +21,15 @@ fn crossterm_runner(mut app: App) -> AppExit {
             return exit;
         }
 
-        // TODO: wait time should be configurable, like winit
-        let available = poll(Duration::from_secs_f32(1. / 30.)).expect("fail to poll io event");
+        let mut state: SystemState<Res<CrosstermSettings>> = SystemState::new(app.world_mut());
+        let config = state.get(app.world());
+
+        let timeout = match config.focused_mode {
+            UpdateMode::Continuous => Duration::from_secs(0),
+            UpdateMode::Reactive { wait } => wait,
+        };
+        // FIXME: update time is not taken into account, should be subtracted
+        let available = poll(timeout).expect("fail to poll io event");
         if available {
             let _event = read().expect("fail to read io event");
             // TODO: what to do with event
@@ -32,7 +39,7 @@ fn crossterm_runner(mut app: App) -> AppExit {
 
 /// Settings for `CrosstermPlugin`.
 ///
-/// TODO: this resource is currently placeholder, and does not affect runner.
+/// TODO: unfocused mode is currently placeholder, and does not affect runner.
 #[derive(Resource, Clone, Debug)]
 pub struct CrosstermSettings {
     /// Determines how frequently the application can update when it has focus.
